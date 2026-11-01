@@ -213,17 +213,20 @@ public static class GatewayEndpoints
         // SPEC-031: plugin onRequest hooks (setModel/addHeaders) before resolution
         if (body.ValueKind == JsonValueKind.Object && rawBody is not null)
         {
-            var bj = JsonNode.Parse(rawBody)!.AsObject();
             var plugins = await Core.Gateway.HotReads.RegisteredPluginsAsync(db);
-            var pluginHeaders = await Core.Extras.PluginHooks.ApplyRequestAsync(db, bj, plugins);
-            if (pluginHeaders.Count > 0) ctx.Items["pluginHeaders"] = pluginHeaders;
             ctx.Items["plugins"] = plugins;
-            var newRaw = JsonSerializer.SerializeToUtf8Bytes(bj);
-            if (!newRaw.SequenceEqual(rawBody))
+            if (plugins.Count > 0)
             {
-                rawBody = newRaw;
-                body = JsonDocument.Parse(newRaw).RootElement;
-                if (body.TryGetProperty("model", out var pm)) model = pm.GetString() ?? model;
+                var bj = JsonNode.Parse(rawBody)!.AsObject();
+                var pluginHeaders = await Core.Extras.PluginHooks.ApplyRequestAsync(db, bj, plugins);
+                if (pluginHeaders.Count > 0) ctx.Items["pluginHeaders"] = pluginHeaders;
+                var newRaw = JsonSerializer.SerializeToUtf8Bytes(bj);
+                if (!newRaw.SequenceEqual(rawBody))
+                {
+                    rawBody = newRaw;
+                    body = JsonDocument.Parse(newRaw).RootElement;
+                    if (body.TryGetProperty("model", out var pm)) model = pm.GetString() ?? model;
+                }
             }
         }
 
@@ -775,13 +778,16 @@ public static class GatewayEndpoints
         // SPEC-031: plugin onRequest hooks before resolution
         if (body.ValueKind == JsonValueKind.Object)
         {
-            var bj = JsonNode.Parse(body.GetRawText())!.AsObject();
             var plugins = await Core.Gateway.HotReads.RegisteredPluginsAsync(db);
-            var pluginHeaders = await Core.Extras.PluginHooks.ApplyRequestAsync(db, bj, plugins);
-            if (pluginHeaders.Count > 0) ctx.Items["pluginHeaders"] = pluginHeaders;
             ctx.Items["plugins"] = plugins;
-            body = JsonDocument.Parse(bj.ToJsonString()).RootElement;
-            if (body.TryGetProperty("model", out var pm)) model = pm.GetString() ?? model;
+            if (plugins.Count > 0)
+            {
+                var bj = JsonNode.Parse(body.GetRawText())!.AsObject();
+                var pluginHeaders = await Core.Extras.PluginHooks.ApplyRequestAsync(db, bj, plugins);
+                if (pluginHeaders.Count > 0) ctx.Items["pluginHeaders"] = pluginHeaders;
+                body = JsonDocument.Parse(bj.ToJsonString()).RootElement;
+                if (body.TryGetProperty("model", out var pm)) model = pm.GetString() ?? model;
+            }
         }
 
         // SPEC-046: tier rules — model allow-list + daily cap for the api key's tier
@@ -1663,7 +1669,11 @@ public static class GatewayEndpoints
                 }
                 await WriteSseLine(ctx, ev, out2);
             }
+            // one flush per upstream line (was: one per translated event)
+            await ctx.Response.Body.FlushAsync(ctx.RequestAborted);
         }
+        // covers the [DONE] / blocked-break writes above
+        try { await ctx.Response.Body.FlushAsync(); } catch { }
         return (pt, ct, dets);
     }
 
@@ -1692,11 +1702,14 @@ public static class GatewayEndpoints
         if (ev is not null)
             await ctx.Response.WriteAsync($"event: {ev}\n", ctx.RequestAborted);
         await ctx.Response.WriteAsync($"data: {data}\n\n", ctx.RequestAborted);
-        await ctx.Response.Body.FlushAsync(ctx.RequestAborted);
     }
 
     private static void TrackUsage(string payload, string inbound, ref int pt, ref int ct)
     {
+        // usage fields are the only thing read below — skip the JSON parse for
+        // the ~99% of chunks that don't carry one (covers "usage" and
+        // "usageMetadata", incl. claude's nested "message":{"usage":...}).
+        if (!payload.Contains("usage", StringComparison.Ordinal)) return;
         try
         {
             var el = JsonDocument.Parse(payload).RootElement;
