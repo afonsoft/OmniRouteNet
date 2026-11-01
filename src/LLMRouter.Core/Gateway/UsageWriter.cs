@@ -415,6 +415,8 @@ public sealed class UsageWriter : BackgroundService
             if (p is not null) HotCache.Default.Invalidate($"qwx:{p}");
         foreach (var k in batch.Select(u => u.ApiKey).Distinct())
             if (k is not null) HotCache.Default.InvalidateTag($"dcap:{k}");
+        // SPEC-163: cached budget spend verdicts are stale after every write.
+        HotCache.Default.InvalidateTag("spend");
     }
 
     /// <summary>

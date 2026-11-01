@@ -2429,6 +2429,12 @@ namespace LLMRouter.Core.Data.Migrations
 
                     b.HasIndex("Timestamp");
 
+                    b.HasIndex("ApiKey", "Timestamp");
+
+                    b.HasIndex("Model", "Timestamp");
+
+                    b.HasIndex("UserId", "Timestamp");
+
                     b.ToTable("usageHistory");
                 });
 
