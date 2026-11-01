@@ -14,6 +14,10 @@ public static class UsageSideEffects
     public static async Task ApplyAsync(LlmRouterDbContext db, UsageRecord row,
         CancellationToken ct = default)
     {
+        // SPEC-163: free-plan daily request counter (kv usage:free:{uid}:{date})
+        // — the gate reads this instead of COUNTing usageHistory per request.
+        if (row.UserId is { } fuid)
+            await HotReads.CreditFreeDailyAsync(db, fuid);
         if (row.UserKeyId is { } ukid && row.Cost != 0)
         {
             var uk = await db.UserKeys.FirstOrDefaultAsync(k => k.Id == ukid, ct);

@@ -157,4 +157,75 @@ public static class HotReads
         LlmRouterDbContext db, Registry.ProviderRegistry registry, string spec) =>
         Cache.GetOrAddAsync($"autopool:{spec}", TimeSpan.FromSeconds(5),
             () => Routing.AutoCombos.ResolveCandidatesAsync(db, registry, spec, CancellationToken.None));
+
+    // === SPEC-163: remaining per-request reads moved behind the cache ===
+
+    /// <summary>kv scope for model aliases (mirrors MgmtBatchEndpoints.AliasScope).</summary>
+    public const string AliasScope = "aliasModels";
+
+    /// <summary>Model alias → provider/model target. Was an uncached
+    /// `db.Kv.FindAsync` per request; alias writes bust the whole cache.</summary>
+    public static Task<string> AliasAsync(LlmRouterDbContext db, string model) =>
+        Cache.GetOrAddAsync($"alias:{model}", TimeSpan.FromSeconds(30), async () =>
+        {
+            var row = await db.Kv.AsNoTracking()
+                .FirstOrDefaultAsync(k => k.Scope == AliasScope && k.Key == model);
+            if (row is null) return model;
+            try
+            {
+                var d = JsonDocument.Parse(row.Value).RootElement;
+                return d.TryGetProperty("target", out var t) ? t.GetString() ?? model : model;
+            }
+            catch (JsonException) { return model; }
+        });
+
+    /// <summary>User row by id — vk auth + free-plan checks used to query
+    /// `db.Users` per request. User writes bust the whole cache.</summary>
+    public static Task<User?> UserAsync(LlmRouterDbContext db, string uid) =>
+        Cache.GetOrAddAsync($"user:{uid}", TimeSpan.FromSeconds(15), () =>
+            db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == uid));
+
+    /// <summary>Enabled budgets — was `db.Budgets.ToListAsync` per request
+    /// in BudgetGate. Budget writes bust the whole cache.</summary>
+    public static Task<List<Budget>> EnabledBudgetsAsync(LlmRouterDbContext db) =>
+        Cache.GetOrAddAsync("budgets:enabled", TimeSpan.FromSeconds(15), () =>
+            db.Budgets.AsNoTracking().Where(b => b.Enabled).ToListAsync());
+
+    /// <summary>Cached budget spend verdict — the SUM over usageHistory used to
+    /// run per request per applicable budget. 5s TTL keeps the cap near-exact;
+    /// usage writes invalidate the "spend" tag alongside "dcap".</summary>
+    public static Task<(double Usd, long Tokens)> BudgetSpendAsync(
+        LlmRouterDbContext db, Data.Budget b, string since) =>
+        Cache.GetOrAddAsync($"spend:{b.Id}:{b.Scope}:{since}", TimeSpan.FromSeconds(5),
+            () => Budgets.BudgetGate.SpendAsync(db, b, since), ["spend"]);
+
+    /// <summary>Free-plan daily request count — kv counter `usage:free:{uid}:{date}`
+    /// bumped by UsageSideEffects inside the usage batch. Falls back to a
+    /// one-time COUNT over usageHistory and seeds the counter on first read
+    /// after deploy.</summary>
+    public static async Task<int> FreeDailyUsedAsync(LlmRouterDbContext db, string uid)
+    {
+        var today = DateTime.UtcNow.Date.ToString("yyyy-MM-dd");
+        var key = $"free:{uid}:{today}";
+        var row = await db.Kv.FindAsync("usage", key);
+        if (row is not null && int.TryParse(row.Value, out var n)) return n;
+        var used = await db.UsageHistory.CountAsync(
+            u => u.UserId == uid && string.Compare(u.Timestamp, today) >= 0);
+        if (row is null) db.Kv.Add(new Data.KvEntry { Scope = "usage", Key = key, Value = used.ToString() });
+        else row.Value = used.ToString();
+        await db.SaveChangesAsync();
+        return used;
+    }
+
+    /// <summary>Bump the free-plan daily counter inside the writer's serial
+    /// transaction (telemetry kv scope — doesn't bust the config cache).</summary>
+    public static async Task CreditFreeDailyAsync(LlmRouterDbContext db, string uid)
+    {
+        var key = $"free:{uid}:{DateTime.UtcNow.Date:yyyy-MM-dd}";
+        var row = await db.Kv.FindAsync("usage", key);
+        if (row is null)
+            db.Kv.Add(new Data.KvEntry { Scope = "usage", Key = key, Value = "1" });
+        else
+            row.Value = (int.TryParse(row.Value, out var n) ? n + 1 : 1).ToString();
+    }
 }

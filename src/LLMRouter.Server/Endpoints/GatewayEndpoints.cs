@@ -685,7 +685,7 @@ public static class GatewayEndpoints
         // vision-adapter combo: stage-1 imageToText call rewrites the image into
         // a text description, then the remaining combo models serve the request
         // SPEC-092: model alias resolution before combo expansion
-        model = await MgmtBatchEndpoints.ResolveAliasAsync(db, model);
+        model = await Core.Gateway.HotReads.AliasAsync(db, model);
         var comboEntity = await Core.Gateway.HotReads.ComboAsync(db, model);
         var routingPack = comboEntity is null ? null : Core.Routing.RoutingPackOptions.From(comboEntity);
         // SPEC-091: budget gate — 429 budget_exceeded when the resolved scope is over cap
@@ -1822,8 +1822,7 @@ public static class GatewayEndpoints
         // SPEC-111: virtual keys vk-… — exige o usuário ativo também.
         if (key.StartsWith("vk-", StringComparison.OrdinalIgnoreCase)
             && await Core.Gateway.HotReads.UserKeyAsync(db, key) is { IsActive: true } uk
-            && await db.Users.AsNoTracking()
-                .FirstOrDefaultAsync(u => u.Id == uk.UserId, ctx.RequestAborted) is { IsActive: true })
+            && await Core.Gateway.HotReads.UserAsync(db, uk.UserId) is { IsActive: true })
             return new AuthKey(key, true, uk.UserId, uk);
         return new AuthKey(key, false);
     }
@@ -1905,15 +1904,15 @@ public static class GatewayEndpoints
         // SPEC-144: plan=free users are capped at payments.freeDailyLimit requests/day
         // (OpenRouter free tier). Standard/admin callers skip the cap.
         if (auth.UserId is { } uid
-            && await db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == uid, ctx.RequestAborted) is { Plan: "free" })
+            && await Core.Gateway.HotReads.UserAsync(db, uid) is { Plan: "free" })
         {
-            var s = await db.Settings.AsNoTracking().FirstOrDefaultAsync(ctx.RequestAborted);
-            var limit = PaymentEndpoints.FreeDailyLimit(AuthEndpoints.Parse(s?.Data));
+            var sdata = await Core.Gateway.HotReads.SettingsDataAsync(db);
+            var limit = PaymentEndpoints.FreeDailyLimit(sdata);
             if (limit > 0)
             {
-                var today = DateTime.UtcNow.Date.ToString("yyyy-MM-dd");
-                var used = await db.UsageHistory.CountAsync(
-                    u => u.UserId == uid && string.Compare(u.Timestamp, today) >= 0, ctx.RequestAborted);
+                // SPEC-163: incremental kv counter bumped by UsageSideEffects
+                // inside the writer batch — no more per-request COUNT scan.
+                var used = await Core.Gateway.HotReads.FreeDailyUsedAsync(db, uid);
                 if (used >= limit)
                 {
                     ctx.Response.StatusCode = 429;

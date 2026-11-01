@@ -6,6 +6,11 @@ public class LlmRouterDbContext : DbContext
 {
     public LlmRouterDbContext(DbContextOptions<LlmRouterDbContext> options) : base(options) { }
 
+    // SPEC-163: AsyncLocal so the UsageWriter's background flow suppresses the
+    // config bust without leaking the flag through pooled context leases
+    // (EF's pool resets core state but never custom properties).
+    private static readonly AsyncLocal<bool> _suppressCacheBust = new();
+
     public DbSet<MetaEntry> Meta => Set<MetaEntry>();
     public DbSet<SettingRow> Settings => Set<SettingRow>();
     public DbSet<ProviderConnection> ProviderConnections => Set<ProviderConnection>();
@@ -130,6 +135,11 @@ public class LlmRouterDbContext : DbContext
         mb.Entity<A2aTask>().HasIndex(e => e.State);
         mb.Entity<ConductorTask>().HasIndex(e => e.State);
         mb.Entity<UsageRecord>().HasIndex(e => e.ApiKey);
+        // SPEC-163: composite indexes for the hot-path aggregate scans
+        // (budget spend / per-user, per-key, per-model period sums).
+        mb.Entity<UsageRecord>().HasIndex(e => new { e.UserId, e.Timestamp });
+        mb.Entity<UsageRecord>().HasIndex(e => new { e.ApiKey, e.Timestamp });
+        mb.Entity<UsageRecord>().HasIndex(e => new { e.Model, e.Timestamp });
         mb.Entity<ChatSession>().HasIndex(e => new { e.KeyId, e.Model });
         mb.Entity<ProviderConnection>().HasIndex(e => new { e.Provider, e.IsActive });
         mb.Entity<QuotaWindow>().HasIndex(e => e.Provider);
@@ -152,7 +162,11 @@ public class LlmRouterDbContext : DbContext
         new(StringComparer.OrdinalIgnoreCase)
         { "audit", "quota", "quotaDaily", "connErrors", "usage", "stats", "keyusage", "connstate" };
 
-    public bool SuppressCacheBust { get; set; }
+    public bool SuppressCacheBust
+    {
+        get => _suppressCacheBust.Value;
+        set => _suppressCacheBust.Value = value;
+    }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {

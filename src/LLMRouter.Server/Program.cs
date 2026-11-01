@@ -75,8 +75,12 @@ otel.WithTracing(t =>
 // Resolved inside the AddDbContext factory so test-provided configuration
 // (WebApplicationFactory ConfigureAppConfiguration) is visible — reading
 // builder.Configuration here would run before the host's config sources merge.
-builder.Services.AddDbContext<LlmRouterDbContext>((sp, o) =>
+// SPEC-163: pooled contexts + per-connection pragmas (WAL/NORMAL/busy_timeout)
+// — the tail latency under load was commit-blocked reads + per-request
+// DbContext allocation.
+builder.Services.AddDbContextPool<LlmRouterDbContext>((sp, o) =>
 {
+    o.AddInterceptors(LLMRouter.Core.Data.SqlitePragmaInterceptor.Instance);
     var dbPath = sp.GetRequiredService<IConfiguration>()["Db:Path"]
         ?? Environment.GetEnvironmentVariable("LLMROUTER_DB_PATH")
         ?? Path.Combine(
@@ -144,6 +148,8 @@ using (var scope = app.Services.CreateScope())
     // and LLMR_SKIP_MIGRATE=1.
     LLMRouter.Core.Data.SchemaMigrator.ApplyFromEnvironment(
         db, msg => app.Logger.LogInformation("{Msg}", msg));
+    // SPEC-163: WAL persists in the db file — readers no longer block on commits.
+    await db.Database.ExecuteSqlRawAsync("PRAGMA journal_mode=WAL");
     // SPEC-110: chain audit rows written before the hash-chain feature (lazy,
     // idempotent — returns 0 once every row carries prevHash/hash).
     var chained = LLMRouter.Core.Extras.AuditLog.BackfillAsync(db).Result;

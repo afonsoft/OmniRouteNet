@@ -347,6 +347,7 @@ public sealed class GatewayEngine(
         // verdicts for this provider+key are now stale.
         HotCache.Default.Invalidate($"qwx:{provider}");
         HotCache.Default.InvalidateTag($"dcap:{apiKey}");
+        HotCache.Default.InvalidateTag("spend"); // SPEC-163: budget spend verdicts
 
         // SPEC-108: usage writes go through the typed channel — batched by the
         // UsageWriter (200 rows / 500ms) in one transaction off the request path.

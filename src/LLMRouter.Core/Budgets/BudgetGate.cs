@@ -73,13 +73,16 @@ public static class BudgetGate
     {
         var now = DateTime.UtcNow;
         var nowIso = now.ToString("O");
-        var budgets = await db.Budgets.AsNoTracking().Where(b => b.Enabled).ToListAsync();
+        // SPEC-163: enabled budgets + spend verdicts come from HotReads — the
+        // per-request SUM over usageHistory is now a 5s cached read (tag "spend"
+        // invalidated by every usage write alongside "dcap").
+        var budgets = await Gateway.HotReads.EnabledBudgetsAsync(db);
         Eval? held = null;
         foreach (var b in budgets)
         {
             if (!AppliesTo(b, userId, apiKey, model)) continue;
             var since = PeriodStart(b.Period, now);
-            var (usd, tokens) = await SpendAsync(db, b, since);
+            var (usd, tokens) = await Gateway.HotReads.BudgetSpendAsync(db, b, since);
             var limitUsd = b.LimitUsd is { } lu ? lu + await ActiveGrantUsdAsync(db, b.Id, nowIso) : (double?)null;
             var overUsd = limitUsd is { } l && usd >= l;
             var overTok = b.LimitTokens is { } lt && tokens >= lt;
