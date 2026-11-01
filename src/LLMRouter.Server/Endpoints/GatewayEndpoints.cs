@@ -1672,8 +1672,10 @@ public static class GatewayEndpoints
             // one flush per upstream line (was: one per translated event)
             await ctx.Response.Body.FlushAsync(ctx.RequestAborted);
         }
-        // covers the [DONE] / blocked-break writes above
-        try { await ctx.Response.Body.FlushAsync(); } catch { }
+        // covers the [DONE] / blocked-break writes above; the client may have
+        // disconnected mid-stream, so opt out of RequestAborted explicitly
+        try { await ctx.Response.Body.FlushAsync(CancellationToken.None); }
+        catch (Exception) { /* best-effort — the stream body is already written */ }
         return (pt, ct, dets);
     }
 
