@@ -132,8 +132,12 @@ builder.Services.AddAuthentication("cookie")
         o.Events.OnRedirectToLogin = ctx => { ctx.Response.StatusCode = 401; return Task.CompletedTask; };
     });
 builder.Services.AddAuthorization();
+// SPEC-164: Brotli/gzip for non-SSE responses (text/event-stream isn't in the
+// default mime set, so streaming stays uncompressed/unbuffered).
+builder.Services.AddResponseCompression(o => o.EnableForHttps = true);
 
 var app = builder.Build();
+app.UseResponseCompression();
 
 // HybridCache backs the SPEC-074 hot-path cache (stampede protection + tag busts).
 LLMRouter.Core.Gateway.HotCache.Configure(
