@@ -42,6 +42,8 @@ public static class AuthEndpoints
                         new Claim(ClaimTypes.Name, u.Email),
                         new Claim("userId", u.Id),
                         new Claim(ClaimTypes.Role, u.Role),
+                        // SPEC-165/#19109: password-backed session — a real credential
+                        new Claim("cred", "pwd"),
                     };
                     await ctx.SignInAsync("cookie", new ClaimsPrincipal(new ClaimsIdentity(claims, "cookie")));
                     await Core.Extras.AuditLog.RecordAsync(db, u.Email, "auth.login.user", u.Id, null,
@@ -57,9 +59,13 @@ public static class AuthEndpoints
             var data = Parse(s?.Data);
             var requireLogin = GetBool(data, "requireLogin", true);
 
-            if (!requireLogin || CheckPassword(data, password))
+            var pwdOk = CheckPassword(data, password);
+            if (!requireLogin || pwdOk)
             {
-                var claims = new[] { new Claim(ClaimTypes.Name, "admin") };
+                // SPEC-165/#19109: mark password-backed sessions so protected-flag
+                // writes can require a real credential even when login is disabled.
+                var claims = new List<Claim> { new(ClaimTypes.Name, "admin") };
+                if (pwdOk) claims.Add(new Claim("cred", "pwd"));
                 await ctx.SignInAsync("cookie",
                     new ClaimsPrincipal(new ClaimsIdentity(claims, "cookie")));
                 // mark setup complete on first successful login
@@ -104,7 +110,7 @@ public static class AuthEndpoints
         });
     }
 
-    internal static string HashPassword(string password)
+    public static string HashPassword(string password)
     {
         var salt = RandomNumberGenerator.GetBytes(16);
         var hash = Rfc2898DeriveBytes.Pbkdf2(password, salt, Iterations, HashAlgorithmName.SHA256, 32);

@@ -189,7 +189,8 @@ public static class AnalyticsEndpoints
             // ---- SPEC-117: Combo Health Autopilot (upstream
             // lib/usage/comboHealthDashboard → autopilot report) ----
             var combosFull = await db.Combos.ToListAsync();
-            var quotaLatest = await Core.Routing.QuotaSnapshots.LatestAsync(db);
+            // SPEC-165 / #19123: retired windows must not flag the combo degraded.
+            var quotaLatest = await Core.Routing.QuotaSnapshots.LatestActiveAsync(db);
             var exhaustedProviders = quotaLatest
                 .Where(s => s.IsExhausted == 1)
                 .Select(s => s.Provider).ToHashSet(StringComparer.OrdinalIgnoreCase);

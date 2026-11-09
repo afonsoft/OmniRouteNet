@@ -57,7 +57,8 @@ public static class QuotaCapture
 
     /// <summary>Persist the probe result map emitted by AnthropicQuotaProbe.</summary>
     public static async Task SaveProbeAsync(LlmRouterDbContext db,
-        string provider, string connectionId, Dictionary<string, object?> quotas)
+        string provider, string connectionId, Dictionary<string, object?> quotas,
+        bool completeReading = false)
     {
         var windows = new Dictionary<string, QuotaSnapshots.Window>();
         foreach (var (key, w) in quotas)
@@ -71,6 +72,24 @@ public static class QuotaCapture
         }
         if (windows.Count > 0)
             await QuotaSnapshots.SaveAsync(db, provider, connectionId, windows);
+        // SPEC-165 / upstream #19123: only a COMPLETE reading proves a window
+        // is gone — retire the ones it no longer reports.
+        if (completeReading)
+            await QuotaSnapshots.RetireUnreportedAsync(db, provider, connectionId, windows.Keys);
+    }
+
+    /// <summary>
+    /// SPEC-165 / upstream #19123 isCompleteUsageReading: a probe payload
+    /// counts as complete when it carries quotasComplete===true, no
+    /// message/_stale error markers, and a quotas object. Partial evidence
+    /// (response headers, failed fetch) never proves absence.
+    /// </summary>
+    public static bool IsCompleteUsageReading(object? payload)
+    {
+        if (payload is not Dictionary<string, object?> d) return false;
+        if (d.ContainsKey("message") || d.ContainsKey("_stale")) return false;
+        if (!d.TryGetValue("quotasComplete", out var c) || c is not true) return false;
+        return d.TryGetValue("quotas", out var q) && q is Dictionary<string, object?>;
     }
 
     private static bool TryHeader(HttpResponseMessage resp, string name, out string? value)

@@ -39,13 +39,47 @@ jobs:
   github-release:
     needs: binaries
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
     steps:
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
           merge-multiple: true
+      # SPEC-157: SBOM (SPDX) per published artifact
+      - uses: anchore/sbom-action@v0
+        with:
+          target: llmrouter-linux-x64.tar.gz
+          format: spdx-json
+          artifact-name: sbom-linux-x64.spdx.json
+      - uses: anchore/sbom-action@v0
+        with:
+          target: llmrouter-linux-arm64.tar.gz
+          format: spdx-json
+          artifact-name: sbom-linux-arm64.spdx.json
+      - uses: anchore/sbom-action@v0
+        with:
+          target: llmrouter-win-x64.zip
+          format: spdx-json
+          artifact-name: sbom-win-x64.spdx.json
+      - uses: anchore/sbom-action@v0
+        with:
+          target: llmrouter-osx-arm64.tar.gz
+          format: spdx-json
+          artifact-name: sbom-osx-arm64.spdx.json
+      # SPEC-157: build provenance attestations for the published artifacts
+      - uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: |
+            llmrouter-*.tar.gz
+            llmrouter-*.zip
       - uses: softprops/action-gh-release@v2
         with:
-          files: llmrouter-*
+          files: |
+            llmrouter-*
+            sbom-*.spdx.json
           generate_release_notes: true
 
   docker:

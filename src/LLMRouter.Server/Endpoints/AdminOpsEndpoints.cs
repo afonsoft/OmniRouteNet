@@ -326,8 +326,10 @@ public static class AdminOpsEndpoints
             var rateLimitStatus = rateRows.ToDictionary(
                 r => $"{r.Scope}:{r.ScopeValue}",
                 r => new { r.Scope, r.ScopeValue, r.Rpm, r.Tpm, r.Burst, r.Enabled, r.UpdatedAt });
-            var learned = await db.QuotaSnapshots
-                .OrderByDescending(s => s.CreatedAt).Take(200).ToListAsync();
+            var learned = (await db.QuotaSnapshots
+                    .OrderByDescending(s => s.CreatedAt).Take(200).ToListAsync())
+                .Where(s => s.RawData != Core.Routing.QuotaSnapshots.RetiredWindowMarker)
+                .ToList();
             var learnedLimits = learned
                 .GroupBy(s => s.Provider)
                 .ToDictionary(g2 => g2.Key, g2 => g2.Select(s => new

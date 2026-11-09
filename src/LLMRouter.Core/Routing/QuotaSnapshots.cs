@@ -23,6 +23,14 @@ public static class QuotaSnapshots
     public sealed record Point(string Timestamp, string Provider,
         double RemainingPct, bool IsExhausted, string WindowKey);
 
+    /// <summary>SPEC-165 / upstream #19123: RawData marker for a retirement
+    /// record — appended per window a complete reading no longer reports so a
+    /// restart does not rehydrate it.</summary>
+    public const string RetiredWindowMarker = "retired:unreported";
+
+    public static bool IsRetired(QuotaSnapshot s) =>
+        s.RawData == RetiredWindowMarker;
+
     /// <summary>
     /// Persist one observation per window. Dedup (upstream #4438): skip when
     /// the latest row for the same provider+connection+window carries the same
@@ -110,6 +118,56 @@ public static class QuotaSnapshots
         return rows
             .GroupBy(s => (s.Provider, s.ConnectionId, s.WindowKey))
             .Select(g => g.First())
+            .ToList();
+    }
+
+    /// <summary>
+    /// SPEC-165 / upstream #19123: retire every window known for this
+    /// connection that a COMPLETE usage reading no longer reports. Providers
+    /// add and remove windows — absence from a complete reading means the
+    /// window is gone. One retirement record is appended per window (history
+    /// kept) so a restart does not rehydrate it. Partial readings (response
+    /// headers) never call this. Returns the retired window keys.
+    /// </summary>
+    public static async Task<List<string>> RetireUnreportedAsync(LlmRouterDbContext db,
+        string provider, string? connectionId, IReadOnlyCollection<string> reportedKeys)
+    {
+        var reported = new HashSet<string>(reportedKeys, StringComparer.Ordinal);
+        var latest = await LatestAsync(db);
+        var retired = new List<string>();
+        foreach (var s in latest)
+        {
+            if (s.Provider != provider || s.ConnectionId != connectionId) continue;
+            if (reported.Contains(s.WindowKey) || IsRetired(s)) continue;
+            db.QuotaSnapshots.Add(new QuotaSnapshot
+            {
+                Provider = provider, ConnectionId = connectionId,
+                WindowKey = s.WindowKey, RemainingPercentage = null,
+                IsExhausted = 0, NextResetAt = null, WindowDurationMs = null,
+                RawData = RetiredWindowMarker,
+                CreatedAt = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"),
+            });
+            retired.Add(s.WindowKey);
+        }
+        if (retired.Count > 0) await db.SaveChangesAsync();
+        return retired;
+    }
+
+    /// <summary>
+    /// SPEC-165 / upstream #19123: latest ACTIVE (non-retired) observation per
+    /// (provider, connection, window) — what routing/consumers should read so
+    /// a retired window stops forcing QUOTA_EXHAUSTED. LatestAsync keeps
+    /// returning the raw history (latest row per window, retired or not).
+    /// </summary>
+    public static async Task<List<QuotaSnapshot>> LatestActiveAsync(LlmRouterDbContext db)
+    {
+        var rows = await db.QuotaSnapshots
+            .OrderByDescending(s => s.CreatedAt).ThenByDescending(s => s.Id)
+            .ToListAsync();
+        return rows
+            .GroupBy(s => (s.Provider, s.ConnectionId, s.WindowKey))
+            .Select(g => g.First())
+            .Where(s => !IsRetired(s))
             .ToList();
     }
 }
