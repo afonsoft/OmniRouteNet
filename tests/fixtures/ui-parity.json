@@ -1,0 +1,626 @@
+{
+  "source": "OmniRoute v3.8.53 (191dce8d)",
+  "generatedAt": "2026-11-06",
+  "routes": [
+    {
+      "upstreamRoute": "/dashboard",
+      "status": "missing",
+      "spec": "SPEC-158-wave3 (RF-019)"
+    },
+    {
+      "upstreamRoute": "/dashboard/a2a",
+      "status": "mapped",
+      "localRoute": "/dashboard/a2a"
+    },
+    {
+      "upstreamRoute": "/dashboard/acp-agents",
+      "status": "mapped",
+      "localRoute": "/dashboard/acp-agents"
+    },
+    {
+      "upstreamRoute": "/dashboard/activity",
+      "status": "mapped",
+      "localRoute": "/dashboard/activity"
+    },
+    {
+      "upstreamRoute": "/dashboard/agent-skills",
+      "status": "mapped",
+      "localRoute": "/dashboard/agent-skills"
+    },
+    {
+      "upstreamRoute": "/dashboard/analytics",
+      "status": "mapped",
+      "localRoute": "/dashboard/analytics"
+    },
+    {
+      "upstreamRoute": "/dashboard/analytics/combo-health",
+      "status": "mapped",
+      "localRoute": "/dashboard/analytics/combo-health"
+    },
+    {
+      "upstreamRoute": "/dashboard/analytics/compression",
+      "status": "mapped",
+      "localRoute": "/dashboard/analytics/compression"
+    },
+    {
+      "upstreamRoute": "/dashboard/analytics/evals",
+      "status": "mapped",
+      "localRoute": "/dashboard/analytics/evals"
+    },
+    {
+      "upstreamRoute": "/dashboard/analytics/search",
+      "status": "mapped",
+      "localRoute": "/dashboard/analytics/search"
+    },
+    {
+      "upstreamRoute": "/dashboard/analytics/utilization",
+      "status": "mapped",
+      "localRoute": "/dashboard/analytics/utilization"
+    },
+    {
+      "upstreamRoute": "/dashboard/api-endpoints",
+      "status": "mapped",
+      "localRoute": "/dashboard/api-endpoints"
+    },
+    {
+      "upstreamRoute": "/dashboard/api-manager",
+      "status": "mapped",
+      "localRoute": "/dashboard/api-manager"
+    },
+    {
+      "upstreamRoute": "/dashboard/api-manager/[id]/access",
+      "status": "mapped",
+      "localRoute": "/dashboard/api-manager/{Id}/access"
+    },
+    {
+      "upstreamRoute": "/dashboard/api-manager/routing",
+      "status": "missing",
+      "spec": "SPEC-158-wave3 (RF-019)"
+    },
+    {
+      "upstreamRoute": "/dashboard/audit",
+      "status": "mapped",
+      "localRoute": "/dashboard/audit"
+    },
+    {
+      "upstreamRoute": "/dashboard/audit/a2a",
+      "status": "mapped",
+      "localRoute": "/dashboard/audit/a2a"
+    },
+    {
+      "upstreamRoute": "/dashboard/audit/mcp",
+      "status": "mapped",
+      "localRoute": "/dashboard/audit/mcp"
+    },
+    {
+      "upstreamRoute": "/dashboard/auto-combo",
+      "status": "mapped",
+      "localRoute": "/dashboard/auto-combo"
+    },
+    {
+      "upstreamRoute": "/dashboard/batch",
+      "status": "mapped",
+      "localRoute": "/dashboard/batch"
+    },
+    {
+      "upstreamRoute": "/dashboard/batch/files",
+      "status": "mapped",
+      "localRoute": "/dashboard/batch/files"
+    },
+    {
+      "upstreamRoute": "/dashboard/cache",
+      "status": "mapped",
+      "localRoute": "/dashboard/cache"
+    },
+    {
+      "upstreamRoute": "/dashboard/cache/media",
+      "status": "mapped",
+      "localRoute": "/dashboard/cache/media"
+    },
+    {
+      "upstreamRoute": "/dashboard/changelog",
+      "status": "mapped",
+      "localRoute": "/dashboard/changelog"
+    },
+    {
+      "upstreamRoute": "/dashboard/chaos",
+      "status": "mapped",
+      "localRoute": "/dashboard/chaos"
+    },
+    {
+      "upstreamRoute": "/dashboard/cli-agents",
+      "status": "mapped",
+      "localRoute": "/dashboard/cli-agents"
+    },
+    {
+      "upstreamRoute": "/dashboard/cli-agents/[id]",
+      "status": "mapped",
+      "localRoute": "/dashboard/cli-agents/{Id}"
+    },
+    {
+      "upstreamRoute": "/dashboard/cli-code",
+      "status": "mapped",
+      "localRoute": "/dashboard/cli-code"
+    },
+    {
+      "upstreamRoute": "/dashboard/cli-code/[id]",
+      "status": "mapped",
+      "localRoute": "/dashboard/cli-code/{Id}"
+    },
+    {
+      "upstreamRoute": "/dashboard/cloud-agents",
+      "status": "mapped",
+      "localRoute": "/dashboard/cloud-agents"
+    },
+    {
+      "upstreamRoute": "/dashboard/combos",
+      "status": "mapped",
+      "localRoute": "/dashboard/combos"
+    },
+    {
+      "upstreamRoute": "/dashboard/combos/[id]",
+      "status": "mapped",
+      "localRoute": "/dashboard/combos/{Id}"
+    },
+    {
+      "upstreamRoute": "/dashboard/combos/live",
+      "status": "mapped",
+      "localRoute": "/dashboard/combos/live"
+    },
+    {
+      "upstreamRoute": "/dashboard/combos/playground",
+      "status": "mapped",
+      "localRoute": "/dashboard/combos/playground"
+    },
+    {
+      "upstreamRoute": "/dashboard/compression",
+      "status": "mapped",
+      "localRoute": "/dashboard/compression"
+    },
+    {
+      "upstreamRoute": "/dashboard/compression/exclusions",
+      "status": "mapped",
+      "localRoute": "/dashboard/compression/exclusions"
+    },
+    {
+      "upstreamRoute": "/dashboard/compression/live",
+      "status": "mapped",
+      "localRoute": "/dashboard/compression/live"
+    },
+    {
+      "upstreamRoute": "/dashboard/compression/studio",
+      "status": "mapped",
+      "localRoute": "/dashboard/compression/studio"
+    },
+    {
+      "upstreamRoute": "/dashboard/conductor",
+      "status": "mapped",
+      "localRoute": "/dashboard/conductor"
+    },
+    {
+      "upstreamRoute": "/dashboard/context",
+      "status": "mapped",
+      "localRoute": "/dashboard/context"
+    },
+    {
+      "upstreamRoute": "/dashboard/context/aggressive",
+      "status": "mapped",
+      "localRoute": "/dashboard/context/aggressive"
+    },
+    {
+      "upstreamRoute": "/dashboard/context/caveman",
+      "status": "mapped",
+      "localRoute": "/dashboard/context/caveman"
+    },
+    {
+      "upstreamRoute": "/dashboard/context/ccr",
+      "status": "mapped",
+      "localRoute": "/dashboard/context/ccr"
+    },
+    {
+      "upstreamRoute": "/dashboard/context/combos",
+      "status": "mapped",
+      "localRoute": "/dashboard/context/combos"
+    },
+    {
+      "upstreamRoute": "/dashboard/context/headroom",
+      "status": "mapped",
+      "localRoute": "/dashboard/context/headroom"
+    },
+    {
+      "upstreamRoute": "/dashboard/context/lite",
+      "status": "mapped",
+      "localRoute": "/dashboard/context/lite"
+    },
+    {
+      "upstreamRoute": "/dashboard/context/llmlingua",
+      "status": "mapped",
+      "localRoute": "/dashboard/context/llmlingua"
+    },
+    {
+      "upstreamRoute": "/dashboard/context/omniglyph",
+      "status": "mapped",
+      "localRoute": "/dashboard/context/omniglyph"
+    },
+    {
+      "upstreamRoute": "/dashboard/context/rtk",
+      "status": "mapped",
+      "localRoute": "/dashboard/context/rtk"
+    },
+    {
+      "upstreamRoute": "/dashboard/context/session-dedup",
+      "status": "mapped",
+      "localRoute": "/dashboard/context/session-dedup"
+    },
+    {
+      "upstreamRoute": "/dashboard/context/settings",
+      "status": "mapped",
+      "localRoute": "/dashboard/context/settings"
+    },
+    {
+      "upstreamRoute": "/dashboard/context/ultra",
+      "status": "mapped",
+      "localRoute": "/dashboard/context/ultra"
+    },
+    {
+      "upstreamRoute": "/dashboard/conversations",
+      "status": "mapped",
+      "localRoute": "/dashboard/conversations"
+    },
+    {
+      "upstreamRoute": "/dashboard/costs",
+      "status": "mapped",
+      "localRoute": "/dashboard/costs"
+    },
+    {
+      "upstreamRoute": "/dashboard/costs/budget",
+      "status": "mapped",
+      "localRoute": "/dashboard/costs/budget"
+    },
+    {
+      "upstreamRoute": "/dashboard/costs/pricing",
+      "status": "mapped",
+      "localRoute": "/dashboard/costs/pricing"
+    },
+    {
+      "upstreamRoute": "/dashboard/costs/quota-share",
+      "status": "mapped",
+      "localRoute": "/dashboard/costs/quota-share"
+    },
+    {
+      "upstreamRoute": "/dashboard/costs/teams",
+      "status": "missing",
+      "spec": "SPEC-169 (RF-017)"
+    },
+    {
+      "upstreamRoute": "/dashboard/discovery",
+      "status": "mapped",
+      "localRoute": "/dashboard/discovery"
+    },
+    {
+      "upstreamRoute": "/dashboard/endpoint",
+      "status": "mapped",
+      "localRoute": "/dashboard/endpoint"
+    },
+    {
+      "upstreamRoute": "/dashboard/free-provider-rankings",
+      "status": "mapped",
+      "localRoute": "/dashboard/free-provider-rankings"
+    },
+    {
+      "upstreamRoute": "/dashboard/free-tiers",
+      "status": "mapped",
+      "localRoute": "/dashboard/free-tiers"
+    },
+    {
+      "upstreamRoute": "/dashboard/gamification/admin",
+      "status": "mapped",
+      "localRoute": "/dashboard/gamification/admin"
+    },
+    {
+      "upstreamRoute": "/dashboard/health",
+      "status": "mapped",
+      "localRoute": "/dashboard/health"
+    },
+    {
+      "upstreamRoute": "/dashboard/leaderboard",
+      "status": "mapped",
+      "localRoute": "/dashboard/leaderboard"
+    },
+    {
+      "upstreamRoute": "/dashboard/limits",
+      "status": "mapped",
+      "localRoute": "/dashboard/limits"
+    },
+    {
+      "upstreamRoute": "/dashboard/log-export",
+      "status": "mapped",
+      "localRoute": "/dashboard/log-export"
+    },
+    {
+      "upstreamRoute": "/dashboard/logs",
+      "status": "mapped",
+      "localRoute": "/dashboard/logs"
+    },
+    {
+      "upstreamRoute": "/dashboard/logs/activity",
+      "status": "mapped",
+      "localRoute": "/dashboard/logs/activity"
+    },
+    {
+      "upstreamRoute": "/dashboard/logs/console",
+      "status": "mapped",
+      "localRoute": "/dashboard/logs/console"
+    },
+    {
+      "upstreamRoute": "/dashboard/logs/proxy",
+      "status": "mapped",
+      "localRoute": "/dashboard/logs/proxy"
+    },
+    {
+      "upstreamRoute": "/dashboard/logs/timeline",
+      "status": "mapped",
+      "localRoute": "/dashboard/logs/timeline"
+    },
+    {
+      "upstreamRoute": "/dashboard/mcp",
+      "status": "mapped",
+      "localRoute": "/dashboard/mcp"
+    },
+    {
+      "upstreamRoute": "/dashboard/media-providers",
+      "status": "mapped",
+      "localRoute": "/dashboard/media-providers"
+    },
+    {
+      "upstreamRoute": "/dashboard/media-providers/[kind]",
+      "status": "missing",
+      "spec": "SPEC-158-wave3 (RF-019)"
+    },
+    {
+      "upstreamRoute": "/dashboard/media-providers/[kind]/[id]",
+      "status": "mapped",
+      "localRoute": "/dashboard/media-providers/{Kind}/{Id}"
+    },
+    {
+      "upstreamRoute": "/dashboard/memory",
+      "status": "mapped",
+      "localRoute": "/dashboard/memory"
+    },
+    {
+      "upstreamRoute": "/dashboard/models",
+      "status": "mapped",
+      "localRoute": "/dashboard/models"
+    },
+    {
+      "upstreamRoute": "/dashboard/omni-skills",
+      "status": "mapped",
+      "localRoute": "/dashboard/omni-skills"
+    },
+    {
+      "upstreamRoute": "/dashboard/onboarding",
+      "status": "mapped",
+      "localRoute": "/dashboard/onboarding"
+    },
+    {
+      "upstreamRoute": "/dashboard/orchestration",
+      "status": "mapped",
+      "localRoute": "/dashboard/orchestration"
+    },
+    {
+      "upstreamRoute": "/dashboard/playground",
+      "status": "mapped",
+      "localRoute": "/dashboard/playground"
+    },
+    {
+      "upstreamRoute": "/dashboard/plugins",
+      "status": "mapped",
+      "localRoute": "/dashboard/plugins"
+    },
+    {
+      "upstreamRoute": "/dashboard/plugins/[name]/config",
+      "status": "mapped",
+      "localRoute": "/dashboard/plugins/{Id}/config"
+    },
+    {
+      "upstreamRoute": "/dashboard/profile",
+      "status": "mapped",
+      "localRoute": "/dashboard/profile"
+    },
+    {
+      "upstreamRoute": "/dashboard/provider-stats",
+      "status": "mapped",
+      "localRoute": "/dashboard/provider-stats"
+    },
+    {
+      "upstreamRoute": "/dashboard/providers",
+      "status": "mapped",
+      "localRoute": "/dashboard/providers"
+    },
+    {
+      "upstreamRoute": "/dashboard/providers/[id]",
+      "status": "mapped",
+      "localRoute": "/dashboard/providers/{Id}"
+    },
+    {
+      "upstreamRoute": "/dashboard/providers/new",
+      "status": "mapped",
+      "localRoute": "/dashboard/providers/new"
+    },
+    {
+      "upstreamRoute": "/dashboard/providers/services",
+      "status": "mapped",
+      "localRoute": "/dashboard/providers/services"
+    },
+    {
+      "upstreamRoute": "/dashboard/quota",
+      "status": "mapped",
+      "localRoute": "/dashboard/quota"
+    },
+    {
+      "upstreamRoute": "/dashboard/radar",
+      "status": "mapped",
+      "localRoute": "/dashboard/radar"
+    },
+    {
+      "upstreamRoute": "/dashboard/radar/combos",
+      "status": "mapped",
+      "localRoute": "/dashboard/radar/combos"
+    },
+    {
+      "upstreamRoute": "/dashboard/radar/intel",
+      "status": "mapped",
+      "localRoute": "/dashboard/radar/intel"
+    },
+    {
+      "upstreamRoute": "/dashboard/radar/offers",
+      "status": "mapped",
+      "localRoute": "/dashboard/radar/offers"
+    },
+    {
+      "upstreamRoute": "/dashboard/radar/setup",
+      "status": "mapped",
+      "localRoute": "/dashboard/radar/setup"
+    },
+    {
+      "upstreamRoute": "/dashboard/relay",
+      "status": "mapped",
+      "localRoute": "/dashboard/relay"
+    },
+    {
+      "upstreamRoute": "/dashboard/resilience/connections",
+      "status": "mapped",
+      "localRoute": "/dashboard/resilience/connections"
+    },
+    {
+      "upstreamRoute": "/dashboard/resilience/cooldowns",
+      "status": "mapped",
+      "localRoute": "/dashboard/resilience/cooldowns"
+    },
+    {
+      "upstreamRoute": "/dashboard/runtime",
+      "status": "mapped",
+      "localRoute": "/dashboard/runtime"
+    },
+    {
+      "upstreamRoute": "/dashboard/search-tools",
+      "status": "mapped",
+      "localRoute": "/dashboard/search-tools"
+    },
+    {
+      "upstreamRoute": "/dashboard/settings",
+      "status": "mapped",
+      "localRoute": "/dashboard/settings"
+    },
+    {
+      "upstreamRoute": "/dashboard/settings/access-tokens",
+      "status": "mapped",
+      "localRoute": "/dashboard/settings/{Section}"
+    },
+    {
+      "upstreamRoute": "/dashboard/settings/advanced",
+      "status": "mapped",
+      "localRoute": "/dashboard/settings/{Section}"
+    },
+    {
+      "upstreamRoute": "/dashboard/settings/ai",
+      "status": "mapped",
+      "localRoute": "/dashboard/settings/{Section}"
+    },
+    {
+      "upstreamRoute": "/dashboard/settings/appearance",
+      "status": "mapped",
+      "localRoute": "/dashboard/settings/{Section}"
+    },
+    {
+      "upstreamRoute": "/dashboard/settings/cache",
+      "status": "mapped",
+      "localRoute": "/dashboard/settings/{Section}"
+    },
+    {
+      "upstreamRoute": "/dashboard/settings/feature-flags",
+      "status": "mapped",
+      "localRoute": "/dashboard/settings/{Section}"
+    },
+    {
+      "upstreamRoute": "/dashboard/settings/general",
+      "status": "mapped",
+      "localRoute": "/dashboard/settings/{Section}"
+    },
+    {
+      "upstreamRoute": "/dashboard/settings/modality-bridge",
+      "status": "mapped",
+      "localRoute": "/dashboard/settings/{Section}"
+    },
+    {
+      "upstreamRoute": "/dashboard/settings/pricing",
+      "status": "mapped",
+      "localRoute": "/dashboard/settings/{Section}"
+    },
+    {
+      "upstreamRoute": "/dashboard/settings/resilience",
+      "status": "mapped",
+      "localRoute": "/dashboard/settings/{Section}"
+    },
+    {
+      "upstreamRoute": "/dashboard/settings/routing",
+      "status": "mapped",
+      "localRoute": "/dashboard/settings/{Section}"
+    },
+    {
+      "upstreamRoute": "/dashboard/settings/security",
+      "status": "mapped",
+      "localRoute": "/dashboard/settings/{Section}"
+    },
+    {
+      "upstreamRoute": "/dashboard/settings/sidebar",
+      "status": "mapped",
+      "localRoute": "/dashboard/settings/{Section}"
+    },
+    {
+      "upstreamRoute": "/dashboard/system/1proxy",
+      "status": "mapped",
+      "localRoute": "/dashboard/system/1proxy"
+    },
+    {
+      "upstreamRoute": "/dashboard/system/mitm-proxy",
+      "status": "mapped",
+      "localRoute": "/dashboard/system/mitm-proxy"
+    },
+    {
+      "upstreamRoute": "/dashboard/system/proxy",
+      "status": "mapped",
+      "localRoute": "/dashboard/system/proxy"
+    },
+    {
+      "upstreamRoute": "/dashboard/tokens",
+      "status": "mapped",
+      "localRoute": "/dashboard/tokens"
+    },
+    {
+      "upstreamRoute": "/dashboard/tools/agent-bridge",
+      "status": "mapped",
+      "localRoute": "/dashboard/tools/agent-bridge"
+    },
+    {
+      "upstreamRoute": "/dashboard/tools/traffic-inspector",
+      "status": "mapped",
+      "localRoute": "/dashboard/tools/traffic-inspector"
+    },
+    {
+      "upstreamRoute": "/dashboard/translator",
+      "status": "mapped",
+      "localRoute": "/dashboard/translator"
+    },
+    {
+      "upstreamRoute": "/dashboard/usage",
+      "status": "mapped",
+      "localRoute": "/dashboard/usage"
+    },
+    {
+      "upstreamRoute": "/dashboard/webhooks",
+      "status": "mapped",
+      "localRoute": "/dashboard/webhooks"
+    }
+  ]
+}

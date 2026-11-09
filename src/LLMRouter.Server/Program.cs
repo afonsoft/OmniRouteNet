@@ -248,6 +248,31 @@ app.Use(async (ctx, next) =>
 });
 
 app.UseAuthentication();
+app.Use(async (ctx, next) =>
+{
+    if (ctx.User.Identity?.IsAuthenticated != true)
+    {
+        var authHeader = ctx.Request.Headers.Authorization.ToString();
+        var xApiKey = ctx.Request.Headers["x-api-key"].ToString();
+        if (!string.IsNullOrEmpty(authHeader) || !string.IsNullOrEmpty(xApiKey))
+        {
+            var db = ctx.RequestServices.GetRequiredService<LLMRouter.Core.Data.LlmRouterDbContext>();
+            var auth = await LLMRouter.Server.Endpoints.GatewayEndpoints.AuthenticatedKey(ctx, db);
+            if (auth.Authed)
+            {
+                var claims = new System.Security.Claims.Claim[]
+                {
+                    new(System.Security.Claims.ClaimTypes.Name, auth.Key ?? "api-key"),
+                    new("cred", "apikey"),
+                    new(System.Security.Claims.ClaimTypes.Role, "admin")
+                };
+                var identity = new System.Security.Claims.ClaimsIdentity(claims, "Bearer");
+                ctx.User = new System.Security.Claims.ClaimsPrincipal(identity);
+            }
+        }
+    }
+    await next();
+});
 app.UseAuthorization();
 app.UseWebSockets();
 // .NET 10 static-asset fingerprinting: index.html references assets as

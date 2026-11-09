@@ -132,4 +132,25 @@ audit: `docs/analysis/ui-parity-audit-2026-10-11.md` — all done:
 | SPEC-123 | Settings sub-routes parity (optional) |
 | SPEC-124 | Home finishing parity |
 | SPEC-125 | OAuth / CLI credential import |
-| SPEC-146–157 | Antirion gap-scan wave (alerts engine, safety events + guardrails pack, request log pro, key scoping, budget overage, UX transversal, routing pack, change control, device auth, test-mode, log sinks, release hardening) | in progress |
+| SPEC-146–149 | Antirion gap-scan wave I (alerts engine, safety events + guardrails pack, request log pro, key scoping) | done |
+| SPEC-150 | Budget overage approvals | done (PR #194) |
+| SPEC-151–153 | UX transversal, routing pack, change control | done |
+| SPEC-154 | Device authorization flow p/ CLI | **partial** — SPEC-050 flow (`/api/cli/connect`, approve/revoke, whoami) landed; RFC 8628 device-code (`/api/cli/device{,/token}`, `cliDeviceCodes` table, `/cli/device` page) pending |
+| SPEC-155 | Test-mode API (LLMROUTER_TEST_MODE) | pending |
+| SPEC-156 | Log/audit HTTP sinks | pending |
+| SPEC-157 | Release hardening: SBOM + provenance | done (2026-11-06 — `release.yml`: `anchore/sbom-action` ×4 RIDs + `attest-build-provenance@v2`) |
+| SPEC-158 | Upstream release contract (manifest) | done (2026-11-06 — `docs/release-manifest.json` + `Spec158ReleaseManifestTests`) |
+| SPEC-159 | Provider operations parity | pending |
+| SPEC-160 | Routing decision observability (attempt ledger) | pending |
+| SPEC-161 | Dashboard migration fidelity fixtures | done (2026-11-06 — `tests/fixtures/ui-parity.json` + `Spec161UiParityFixtureTests`; 124 rotas: 120 mapped, 4 missing→SPEC-169/onda 3) |
+| SPEC-162 | Compatibility/upgrade validation | pending |
+| SPEC-163 | Perf: hot-path reads | done (PR #202) |
+| SPEC-164 | Perf: stream/body CPU | done (PR #203) |
+| SPEC-165 | Combo/resilience runtime v3.8.53 + cherry-picks v3.8.54 (#19123 quota-window retire, #19109 protected feature flags) | in implementation |
+| SPEC-166 | Routing features v3.8.53 (11 changelog features) | approved |
+| SPEC-167 | Providers, executors & OAuth v3.8.53 | approved |
+| SPEC-168 | Data & API surface v3.8.53 | approved |
+| SPEC-169 | Teams cost centers | approved |
+| SPEC-170 | MFA TOTP + Entra SSO config | approved |
+
+Gap classification pin→tag `v3.8.53`: `docs/analysis/omniroute-gap-v3.8.53.md`.

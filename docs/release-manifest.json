@@ -1,0 +1,41 @@
+{
+  "repo": "cheaper-inference/OmniRoute",
+  "tag": "v3.8.53",
+  "commit": "191dce8d534ceb56c28a08e71381284a9a87838f",
+  "commitDate": "2026-11-06T04:21:00-03:00",
+  "treeMatchesReleaseBranch": "origin/release/v3.8.53@6cc6965075dc54b6cae1924fb6547938fbd2a08b",
+  "historyNote": "Previous pin 412319f0bdda06a1c7db93dd62bdf8b6317edc1e (2026-10-26) is NOT an ancestor of this tag (upstream history rewritten; merge-base edab7c3a59bf7d6f040d581dbda3a46adbee0d57). All upstream comparisons must be tree-based (git diff <a> <b>), never git rev-list.",
+  "diffFromPreviousPin": {
+    "filesTotal": 6358,
+    "codeFiles": 1868,
+    "notes": "codeFiles excludes docs/, tests/ and changelog.d/ (2971 of the total are docs/i18n only)"
+  },
+  "cherryPicksFromLaterBranches": [
+    {
+      "branch": "release/v3.8.54",
+      "upstreamPR": "#19123",
+      "feature": "retire unreported quota windows",
+      "spec": "SPEC-165 (RF-013a)"
+    },
+    {
+      "branch": "release/v3.8.54",
+      "upstreamPR": "#19109",
+      "feature": "protected feature flags require management auth",
+      "spec": "SPEC-165 (RF-013b)"
+    }
+  ],
+  "secondSource": {
+    "repo": "decolua/9router",
+    "commit": "ce4460ef79382bfddb4aa5fc0ff9f3cb0d5f95a8"
+  },
+  "counts": {
+    "localProviders": 289,
+    "localEndpointMapCalls": 856,
+    "localEndpointFiles": 73,
+    "localRazorPages": 162,
+    "localTests": 825,
+    "upstreamApiRoutes": 789,
+    "upstreamDashboardPages": 124,
+    "gapDoc": "docs/analysis/omniroute-gap-v3.8.53.md"
+  }
+}

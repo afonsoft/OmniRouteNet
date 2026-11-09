@@ -31,6 +31,18 @@ public static class SettingsRoutingEndpoints
         await Core.Extras.Extras.AuditAsync(db, $"settings.{key}", "update");
     }
 
+    /// <summary>
+    /// SPEC-165 / #19109: a "real credential" = dashboard session backed by a
+    /// password (claim cred=pwd) or a valid gateway api key — never an
+    /// anonymous session created by requireLogin=false.
+    /// </summary>
+    private static async Task<bool> HasManagementCredential(HttpContext ctx, LlmRouterDbContext db)
+    {
+        if (ctx.User.Claims.Any(c => c.Type == "cred" && (c.Value == "pwd" || c.Value == "apikey"))) return true;
+        var auth = await GatewayEndpoints.AuthenticatedKey(ctx, db);
+        return auth.Authed && auth.Key != "dashboard";
+    }
+
     public static void Map(WebApplication app)
     {
         var g = app.MapGroup("/api").RequireAuthorization();
@@ -58,6 +70,43 @@ public static class SettingsRoutingEndpoints
             {
                 var req = await JsonSerializer.DeserializeAsync<JsonNode>(ctx.Request.Body);
                 var val = req is JsonObject o && o.ContainsKey("value") ? o["value"] : req;
+
+                // SPEC-165 / upstream #19109: protected feature flags demand a
+                // real management credential (password-backed session or a
+                // gateway api key) even when dashboard login is disabled.
+                if (key == "featureFlags" && val is JsonObject rawFlags)
+                {
+                    // Normalize keys: match case-insensitively against protected/known flags
+                    var flags = new JsonObject();
+                    foreach (var (k, v) in rawFlags)
+                    {
+                        var canonical = Core.Security.ProtectedFeatureFlags.Protected
+                            .FirstOrDefault(p => string.Equals(p, k, StringComparison.OrdinalIgnoreCase)) ?? k;
+                        flags[canonical] = v?.DeepClone();
+                    }
+                    val = flags;
+
+                    foreach (var kv in flags)
+                    {
+                        string? sv;
+                        if (kv.Value is null) sv = null;
+                        else if (kv.Value is JsonValue jv && jv.TryGetValue<string>(out var s)) sv = s;
+                        else sv = kv.Value.ToJsonString();
+                        var err = Core.Security.ProtectedFeatureFlags.ValidateValue(kv.Key, sv);
+                        if (err is not null)
+                            return Results.Json(new { error = err }, JsonOpts, statusCode: 400);
+                    }
+
+                    var touched = flags.Where(kv =>
+                        Core.Security.ProtectedFeatureFlags.IsProtected(kv.Key)).ToList();
+                    if (touched.Count > 0 && !await HasManagementCredential(ctx, db))
+                        return Results.Json(new
+                        {
+                            error = "management_credential_required",
+                            flags = touched.Select(t => t.Key),
+                        }, JsonOpts, statusCode: 403);
+                }
+
                 await SaveSection(db, key, val);
                 return Results.Json(new { success = true }, JsonOpts);
             });
